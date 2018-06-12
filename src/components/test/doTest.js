@@ -191,7 +191,7 @@ class Test extends Component {
             correctAnswers: [],
             inputAnswers:[],
             correctAnswersNum: 0,
-
+            tDescription:"",
 
 
         };
@@ -200,9 +200,10 @@ class Test extends Component {
         this.handleClick = this.handleClick.bind(this);
         this.handleClickSend = this.handleClickSend.bind(this);
         this.timeIsGone = this.timeIsGone.bind(this);
-        axios.get('http://localhost:3000/tanya/test/' + this.props.id)
-            .then(response => this.handleRequset(response.data[0]));
-
+        // axios.get('http://localhost:3000/tanya/test/' + this.props.id)
+        //     .then(response => this.handleRequset(response.data[0]));
+        console.log(props.data)
+        this.handleRequset(props.data);
         // this.handleRequset(this.props.bbb[0]);
         // console.log(this.state.response);
 
@@ -234,15 +235,16 @@ class Test extends Component {
     }
 
     handleRequset = (data) => {
-
-        console.log("test " + data.qustions.length);
+        console.log("DATA", data);
+        console.log("test " + data.questions.length);
         this.setState({
             response: data,
             tTitle: data.testName,
             tTimer: data.timer,
+            tDescription: data.description,
         });
 
-        let qIn = this.state.response.qustions;
+        let qIn = this.state.response.questions;
         let qOut = this.state.tQuestions;
         // console.log(qIn.length);
         let ans = this.state.inputAnswers;
@@ -420,8 +422,7 @@ class Test extends Component {
 
                 <div>
                     <div><p>Заголовок {this.state.tTitle}</p></div>
-                    <div><p>Описание {"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor" +
-                    " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco"}</p></div>
+                    <div><p>Описание {this.state.tDescription}</p></div>
                     {/*<div><p>Таймер {<ReactCountdownClock seconds={this.state.tTimer} color="#777" alpha={0.9} size={300}/>}</p></div>*/}
                     <div><p>Таймер {<ReactCountdownClock seconds={this.state.tTimer} color="#777" alpha={0.9} size={75} onComplete={this.timeIsGone}/>}</p></div>
                     <div><p>Количество ответов {this.state.tAnswQuest}</p></div>
@@ -436,8 +437,7 @@ class Test extends Component {
             return (
                 <div>
                     <div><p>Заголовок {this.state.tTitle}</p></div>
-                    <div><p>Описание {"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor" +
-                    " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco"}</p></div>
+                    <div><p>Описание {this.state.tDescription}</p></div>
                     <div><button name = {"startTest"} onClick={this.handleClick}>Start Test</button></div>
 
 
@@ -446,8 +446,7 @@ class Test extends Component {
             return (
                 <div>
                     <div><p>Заголовок {this.state.tTitle}</p></div>
-                    <div><p>Описание {"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor" +
-                    " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco"}</p></div>
+                    <div><p>Описание {this.state.tDescription}</p></div>
                     {/*<div><button name = {"startTest"} onClick={this.handleClick}>Start Test</button></div>*/}
                     <div><p>Test is done</p></div>
                     <div><p>Correct {this.state.correctAnswersNum}/{this.state.tQuestions.length}</p></div>
@@ -473,7 +472,7 @@ class TestPage extends Component{
         };
         this.buttonClick = this.buttonClick.bind(this);
 
-        axios.get('http://localhost:3000/tanya_test/testTitles/')
+        axios.get('http://localhost:3000/tanya/test/testTitles')
             .then(response => this.handleRequsetTitles(response.data));
     }
 
@@ -548,4 +547,4 @@ class TestPage extends Component{
     }
 }
 
-export default TestPage;
+export default Test;

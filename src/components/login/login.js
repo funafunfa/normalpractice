@@ -18,11 +18,12 @@ class Login extends Component{
                 password: "",
                 passwordConfirm: "",
                 roleSelector: "admin",
-                loginOrRegister: false,
+                loginOrRegister: true,
 
 
 
         };
+        // console.log("id", props.sessionId);
         // this.handleUsers = this.handleUsers.bind(this);
         this.loginButtons = this.loginButtons.bind(this);
         this.submitButton = this.submitButton.bind(this);
@@ -98,15 +99,15 @@ class Login extends Component{
 
 
         if(this.state.loginOrRegister){
-            fetch('http://localhost:3000/', {
+            fetch('http://localhost:3000/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    logemail:this.state.email,
-                    logpassword:this.state.password,
+                    username:this.state.email,
+                    password:this.state.password,
                 })
             }).then(response => response.json())
                 .then(response => {
@@ -136,6 +137,7 @@ class Login extends Component{
 
                     console.log(response);
                 });
+
                     console.log(this.state.email);
             console.log(this.state.password);
             console.log(this.state.passwordConfirm);

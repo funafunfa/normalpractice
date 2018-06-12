@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 // import request from 'superagent';
 // import { Button, Input, Label, Container, Col } from 'reactstrap';
+import { Button, Form, FormGroup, Label, Input, FormText } from 'reactstrap';
 
 class Option extends Component{
     constructor(props){
@@ -112,6 +113,8 @@ class QuestionSet extends Component{
             questionArray: [<Question elementName = {0 + "Q"}/>],
             counter: 1,
             timer: 0,
+            description:""
+
         };
         this.handleChangeQuestionSet = this.handleChangeQuestionSet.bind(this);
         this.handleChangeTimer = this.handleChangeTimer.bind(this);
@@ -125,6 +128,10 @@ class QuestionSet extends Component{
         if (event.target.name === "questionSetInput"){
             this.setState({
                 questionSetName: event.target.value
+            })
+        }else if(event.target.name === "description"){
+            this.setState({
+                description: event.target.value
             })
         }
     };
@@ -156,7 +163,7 @@ class QuestionSet extends Component{
                     ]}
             ]
         };
-        let form = {testName:formElements[0].value,timer:formElements[1].value, questions: []};
+        let form = {testName:formElements[0].value,timer:formElements[1].value, description:this.state.description, questions: []};
 
         console.log(formElements);
 
@@ -203,21 +210,24 @@ class QuestionSet extends Component{
 
         // console.log('formData', formData);
         console.log('form', form);
+        this.props.onForm({numberTheme: this.props.number,numberTest:this.props.numberTest, data:form});
+        // fetch('http://localhost:3000/tanya/admin/createTest', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //         data: form,
+        //         name: "Dimas",
+        //         secondParam: 'yourOtherValue',
+        //     })
+        // }).then(function(response) {
+        //     console.log(response)
+        // })
 
-        fetch('http://localhost:3000/tanya/admin/createTest', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                data: form,
-                name: "Dimas",
-                secondParam: 'yourOtherValue',
-            })
-        }).then(function(response) {
-            console.log(response)
-        })
+        // window.location.reload();
+
     };
 
     addButtonQuestion(event){
@@ -247,14 +257,16 @@ class QuestionSet extends Component{
 
     };
     render(){
-        return <div><form onSubmit={this.adamSender}>
+        const style = {marginTop: 20};
+        return <div style={style}><form onSubmit={this.adamSender}>
             <input  name = {"questionSetInput"} placeholder={"questionSet Name"} onChange={this.handleChangeQuestionSet}/>
             <input  name = {"timerInput"} placeholder={"timerInput"} onChange={this.handleChangeTimer}/>
+            <input  name = {"description"} placeholder={"description"} onChange={this.handleChangeTimer}/>
             <div><button color="primary" onClick={this.addButtonQuestion}>++</button><button color="danger" onClick={this.disButtonQuestion}>--</button></div>
             <div >{this.state.questionArray.map(function (input, index) {
                 return input
             })}</div>
-            <div><button color="success">Send data</button></div>
+            <div><Button color="success">Test is ready</Button></div>
         </form></div>
     };
 }

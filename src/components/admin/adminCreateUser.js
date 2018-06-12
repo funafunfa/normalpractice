@@ -51,22 +51,25 @@ class User extends Component{
         console.log("role " + this.state.selectedOption.value);
 
         console.log(event.target.value);
-        fetch('http://localhost:3000/', {
+        fetch('http://localhost:3000/api/auth/register', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                email:this.state.email,
-                username:this.state.userName,
+                username:this.state.email,
+                name:this.state.userName,
                 password:this.state.password,
-                passwordConf: this.state.password,
                 role:this.state.selectedOption.value,
-                secondParam: 'yourOtherValue',
-                type:"createdByAdmin",
             })
-        })
+        });
+        this.props.history.push({
+            pathname: '/user',
+            state: this.props.location.state
+        });
+        // window.location.reload();
+
     }
 
     handleInputChange(event){

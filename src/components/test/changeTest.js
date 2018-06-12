@@ -2,17 +2,36 @@ import React, { Component } from 'react';
 import axios from 'axios';
 // import request from 'superagent';
 // import { Button, Input, Label, Container, Col } from 'reactstrap';
+import Select from 'react-select';
 
 class Option extends Component{
     constructor(props){
         super(props);
-        this.state = {
-            elementName: props.elementName,
-            optionText:props.dataInOption.textO,
-            trueAnswer: props.dataInOption.t,
-            dataInOption: props.dataInOption,
+        if(props.dataInOption){
+            this.state = {
+                elementName: props.elementName,
+                optionText:"",
+                trueAnswerText: props.dataInOption.t,
+                trueAnswer:"",
+                dataInOption: props.dataInOption,
 
-        };
+            };
+            if(this.state.trueAnswerText === "true"){
+                this.state.trueAnswer = true;
+            }
+            this.state.optionText = props.dataInOption.textO;
+
+        }else{
+            this.state = {
+                elementName: props.elementName,
+                optionText:"",
+                trueAnswer: "",
+                dataInOption: "",
+
+            };
+        }
+
+
         this.handleChangeOption = this.handleChangeOption.bind(this);
     }
     handleChangeOption(event){
@@ -32,7 +51,7 @@ class Option extends Component{
 
     render(){
         return <div><input name={this.state.elementName} value={this.state.optionText} onChange={this.handleChangeOption} placeholder={this.state.elementName + " answer" +
-        " option"}/><input name = {this.state.elementName + "C"} checked = {this.state.trueAnswer === "true"} value={this.state.elementName} onChange={this.handleChangeOption} type="checkbox"/></div>
+        " option"}/><input name = {this.state.elementName + "C"} checked = {this.state.trueAnswer} value={this.state.elementName} onChange={this.handleChangeOption} type="checkbox"/></div>
     };
 }
 
@@ -42,11 +61,14 @@ class Question extends Component{
         this.state = {
             elementName: props.elementName,
             optionArray: [],
-            questionText:props.dataInQuestion.question,
+            questionText:"",
             counter: 0,
-            dataInQuestion: props.dataInQuestion,
+            dataInQuestion:"",
 
         };
+        if(props.dataInQuestion){
+            this.state.dataInQuestion = props.dataInQuestion;
+        }
         this.handleChangeQuestion = this.handleChangeQuestion.bind(this);
         this.addButton = this.addButton.bind(this);
         this.disButton = this.disButton.bind(this);
@@ -54,24 +76,31 @@ class Question extends Component{
         console.log(this.state.dataInQuestion);
         const u = this.state.optionArray;
         // console.log(u.length);
-        let dat = this.state.dataInQuestion.options;
-        let x = 0;
-        for(let z = 0; z <= dat.length-1; z++){
-            // u[z] = <div key={z}><Question elementName = {z + "Q"} dataInQuestion = {this.state.dataIn.qustions[z]}/></div>;
-            u[z] = <div key={z}><Option elementName = {this.state.elementName + "_" + z + "A"} dataInOption = {dat[z]}/></div>;
-            x = z;
-            console.log(dat);
-            // console.log(x);
+        if(this.state.dataInQuestion.options){
+            let dat = this.state.dataInQuestion.options;
+            let x = 0;
+            for(let z = 0; z <= dat.length-1; z++){
+                // u[z] = <div key={z}><Question elementName = {z + "Q"} dataInQuestion =   {this.state.dataIn.qustions[z]}/></div>;
+                u[z] = <div key={z}><Option elementName = {this.state.elementName + "_" + z + "A"} dataInOption = {dat[z]}/></div>;
+                x = z;
+                console.log(dat);
+                // console.log(x);
+            }
+            this.setState({
+                optionArray: u, counter:x
+            });
+            this.state.questionText = props.dataInQuestion.question;
+            x++;
+            this.state.counter = x;
         }
-        this.setState({
-            optionArray: u, counter:x
-        })
+
+
     };
 
 
     handleChangeQuestion(event){
         event.preventDefault();
-        if (event.target.name === "questionInput"){
+        if (event.target.name === this.state.elementName){
             this.setState({
                 questionText: event.target.value
             })
@@ -95,13 +124,13 @@ class Question extends Component{
         event.preventDefault();
         const inputList = this.state.optionArray;
         let i = this.state.counter;
-        if(i !== 2){
+
             i--;
             inputList.pop();
             this.setState({
                 optionArray: inputList, counter: i
             });
-        }
+
 
     };
 
@@ -125,32 +154,51 @@ class Question extends Component{
 class QuestionSet extends Component{
     constructor(props){
         super(props);
-        this.state = {
-            questionSetName: props.dataIn.testName,
-            elementName: props.elementName,
-            questionArray: [],
-            counter: 0,
-            timer: props.dataIn.timer,
-            dataIn: props.dataIn,
-        };
+        if(props.dataIn){
+            this.state = {
+                questionSetName: props.dataIn[0].data.testName,
+                elementName: props.elementName,
+                questionArray: [],
+                counter: 0,
+                timer: props.dataIn[0].data.timer,
+                dataIn: props.dataIn[0].data,
+                description:props.dataIn[0].data.description
+            };
+        }else{
+            this.state = {
+                questionSetName:"",
+                elementName: "",
+                questionArray: [],
+                counter: 0,
+                timer: "",
+                dataIn: "",
+                description:""
+            };
+        }
+
         this.handleChangeQuestionSet = this.handleChangeQuestionSet.bind(this);
         this.handleChangeTimer = this.handleChangeTimer.bind(this);
         this.addButtonQuestion = this.addButtonQuestion.bind(this);
         this.disButtonQuestion = this.disButtonQuestion.bind(this);
         this.adamSender = this.adamSender.bind(this);
 
-
-        console.log(this.state.dataIn);
-        const u = this.state.questionArray;
-        // console.log(u.length);
-        let x = 0;
-        for(let z = 0; z <= this.state.dataIn.questions.length-1; z++){
-            u[z] = <div key={z}><Question elementName = {z + "Q"} dataInQuestion = {this.state.dataIn.questions[z]}/></div>;
-            x = z;
+        if(props.dataIn){
+            console.log(this.state.dataIn);
+            console.log("DATA", this.state.dataIn);
+            const u = this.state.questionArray;
+            // console.log(u.length);
+            let x = 0;
+            for(let z = 0; z <= this.state.dataIn.questions.length-1; z++){
+                u[z] = <div key={z}><Question elementName = {z + "Q"} dataInQuestion = {this.state.dataIn.questions[z]}/></div>;
+                x = z;
+            }
+            this.setState({
+                questionArray: u, counter:x
+            })
+            x++;
+            this.state.counter = x;
         }
-        this.setState({
-            questionArray: u, counter:x
-        })
+
     }
 
     handleChangeQuestionSet(event){
@@ -158,6 +206,11 @@ class QuestionSet extends Component{
         if (event.target.name === "questionSetInput"){
             this.setState({
                 questionSetName: event.target.value
+            })
+        }
+        else if (event.target.name === "description"){
+            this.setState({
+                description: event.target.value
             })
         }
     };
@@ -189,7 +242,7 @@ class QuestionSet extends Component{
                     ]}
             ]
         };
-        let form = {testName:formElements[0].value,timer:formElements[1].value, questions: []};
+        let form = {testName:formElements[0].value,timer:formElements[1].value,description:this.state.description, questions: []};
 
         console.log(formElements);
 
@@ -233,19 +286,21 @@ class QuestionSet extends Component{
         });
 
 
-        fetch('http://localhost:3000/tanya/changeTest', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                data: form,
-                oldId: this.state.dataIn._id,
-                name: "Dimas",
-                secondParam: 'yourOtherValue',
-            })
-        })
+        // fetch('http://localhost:3000/tanya/changeTest', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({
+        //         data: form,
+        //         oldId: this.state.dataIn._id,
+        //         name: "Dimas",
+        //         secondParam: 'yourOtherValue',
+        //     })
+        // })
+
+        this.props.onTestDone({numberTheme: this.props.number,numberTest:this.props.numberTest, data:form});
 
         // // console.log('formData', formData);
         // let changed = [];
@@ -259,6 +314,7 @@ class QuestionSet extends Component{
         //
         // }
         // console.log('changed', changed);
+        // window.location.reload();
 
     };
 
@@ -279,19 +335,18 @@ class QuestionSet extends Component{
         event.preventDefault();
         const inputList = this.state.questionArray;
         let i = this.state.counter;
-        if(i != 1){
             i--;
             inputList.pop();
             this.setState({
                 questionArray: inputList, counter: i
             });
-        }
 
     };
     render(){
         return <div><form onSubmit={this.adamSender}>
             <input  name = {"questionSetInput"} value={this.state.questionSetName} placeholder={"questionSet Name"} onChange={this.handleChangeQuestionSet}/>
             <input  name = {"timerInput"} value={this.state.timer} placeholder={"timerInput"} onChange={this.handleChangeTimer}/>
+            <input  name = {"description"} value={this.state.description} placeholder={"description"} onChange={this.handleChangeQuestionSet}/>
             <div><button color="primary" onClick={this.addButtonQuestion}>++</button><button color="danger" onClick={this.disButtonQuestion}>--</button></div>
             <div >{this.state.questionArray.map(function (input, index) {
                 return input
@@ -308,8 +363,11 @@ class BigQuestionSet extends Component{
             data: "",
 
         };
-        axios.get('http://localhost:3000/tanya/singleTest')
-            .then(response => this.setState({data: <QuestionSet dataIn = {response.data}/>}));
+
+        //
+        var id = "5b105df47e857f5fd0eb1634";
+        axios.get('http://localhost:3000/tanya/test/' + this.props.id)
+            .then(response => this.setState({data: <QuestionSet dataIn = {response.data[0]}/>}));
 
     }
     render(){
@@ -317,5 +375,91 @@ class BigQuestionSet extends Component{
     }
 }
 
+class SelectorTest extends Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            selectedOption: '',
+            options: [],
+            test: "",
+            testing:false
+        };
+        this.buttonClick = this.buttonClick.bind(this);
 
-export default BigQuestionSet;
+        axios.get('http://localhost:3000/tanya/test/testTitles')
+            .then(response => this.handleRequsetTitles(response.data));
+    }
+
+    handleChange = (selectedOption) => {
+        this.setState({ selectedOption });
+        // selectedOption can be null when the `x` (close) button is clicked
+        if (selectedOption) {
+            console.log(`Selected: ${selectedOption.label}`);
+        }
+    }
+
+    handleRequsetTitles = (data) => {
+        // console.log("test " + langValue);
+        let op = this.state.options;
+
+        data.map(function (input, index) {
+            op.push({value: input.id, label: input.title});
+        });
+
+        this.setState({
+            options: op,
+        })
+        // var lang = this.dropdown.value;
+        // this.props.onSelectLanguage(lang);
+    };
+
+    buttonClick(){
+        console.log("test " + this.state.selectedOption.value);
+        this.setState({
+            test:<BigQuestionSet id = {this.state.selectedOption.value}/>,
+            testing: true,
+        })
+        // axios.get('http://localhost:3000/tanya/' + this.state.selectedOption.value)
+        //     .then(response => this.handleRequsetTest(response.data));
+    };
+
+    // handleRequsetTest = (data) => {
+    //     console.log(data[0]);
+    //     this.setState({
+    //         test:<Test id = {data}/>,
+    //         testing: true,
+    //     })
+
+    // };
+
+    render() {
+        const { selectedOption } = this.state;
+        if(!this.state.testing){
+            return (
+                <div>
+                    <Select
+                        name="form-field-name"
+                        value={selectedOption}
+                        onChange={this.handleChange}
+                        options={this.state.options}
+                    />
+                    <button disabled = {!selectedOption} onClick={this.buttonClick}>Choose test</button>
+                </div>
+
+
+            );
+        }if(this.state.testing){
+            return (
+                <div>
+                    {this.state.test}
+                </div>
+
+
+            );
+        }
+
+    }
+}
+
+
+export default QuestionSet;

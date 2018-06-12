@@ -1,15 +1,29 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+// import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 // import { Nav, NavItem  } from 'react-bootstrap';
+import axios from 'axios';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
+// import React, { Component } from 'react';
+
+import {
+    BrowserRouter as Router,
+    Route,
+    Link,
+    Redirect,
+    withRouter
+} from "react-router-dom";
 
 import {Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
 import AdminUserInterface from "./components/admin/adminUserInterface"
 import TestInterface from "./components/test/testInterface"
 import CreateCourse from "./components/course/createCourse"
+import ChangeTest from "./components/test/changeTest"
 import CourseInterface from "./components/course/courseInterface"
+import UserInterface from "./components/user/userInterface"
 import Login from "./components/login/login"
+import fakeAuth from "./fakeAuth"
 import 'react-select/dist/react-select.css';
 const NavBarReact = () => (<Navbar color="light" light expand="md">
     <NavbarBrand href="/">reactstrap</NavbarBrand>
@@ -42,50 +56,71 @@ const NavBarReact = () => (<Navbar color="light" light expand="md">
 const paddings = { paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 20,};
-const BasicExample = () => (
+
+class BasicExample extends Component{
+    constructor(props){
+        super(props);
+
+    }
+
+    componentDidMount() {
+        axios.defaults.headers.common['Authorization'] = localStorage.getItem('jwtToken');
+        axios.get('http://localhost:3000/api/book')
+            .then(res => {
+                this.setState({ books: res.data });
+                console.log(this.state.books);
+            })
+            .catch((error) => {
+                if(error.response.status === 401) {
+                    this.props.history.push("/login");
+                }
+            });
+    }
+    render(){
+        return(<Router>
+            <div >
+                {/*<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>*/}
+                <Nav>
+                    <NavItem>
+                        <NavLink><Link to={"/"}>Main</Link></NavLink>
+                    </NavItem>
+                    {/*<NavItem>*/}
+                        {/*<NavLink><Link to={"/test"}>Test</Link></NavLink>*/}
+
+                    {/*</NavItem>*/}
+                    <NavItem>
+                        <NavLink><Link to={"/user"}>Test</Link></NavLink>
+
+                    </NavItem>
+                    {/*<NavItem>*/}
+                        {/*<NavLink><Link to={"/course"}>Course</Link></NavLink>*/}
+
+                    {/*</NavItem>*/}
+                    {/*<NavItem>*/}
+                        {/*<NavLink><Link to={"/admin"}>Admin</Link></NavLink>*/}
+
+                    {/*</NavItem>*/}
+                </Nav>
 
 
-    <Router>
-        <div >
-            {/*<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>*/}
-            <Nav>
-                <NavItem>
-                    <NavLink><Link to={"/"}>Main</Link></NavLink>
-                </NavItem>
-                <NavItem>
-                    <NavLink><Link to={"/test"}>Test</Link></NavLink>
-
-                </NavItem>
-                <NavItem>
-                    <NavLink><Link to={"/course"}>Course</Link></NavLink>
-
-                </NavItem>
-                <NavItem>
-                    <NavLink><Link to={"/admin"}>Admin</Link></NavLink>
-
-                </NavItem>
-                <NavItem>
-                    <NavLink><Link to={"/login"}>login</Link></NavLink>
-
-                </NavItem>
-            </Nav>
 
 
 
 
+                <hr />
+                <div style ={paddings}>
+                    <Route exact path="/" component={Home} />
+                    {/*<Route path="/admin" component={AdminUserInterface} />*/}
+                    {/*<Route path="/course" component={CourseInterface} />*/}
+                    <Route path="/user" component={UserInterface} />
+                    {/*<Route path="/test" component={TestInterface} />*/}
 
-
-            <hr />
-            <div style ={paddings}>
-            <Route exact path="/" component={Home} />
-            <Route path="/admin" component={AdminUserInterface} />
-            <Route path="/course" component={CourseInterface} />
-            <Route path="/test" component={TestInterface} />
-            <Route path="/login" component={Login} />
+                </div>
             </div>
-        </div>
-    </Router>
-);
+        </Router>);
+    }
+}
+
 
 const Home = () => (
     <div>

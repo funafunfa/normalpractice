@@ -13,14 +13,21 @@ class Theme extends Component{
             title: "",
             text: "",
             file:"",
+            tests:[],
+            testCounter: 0,
             buttonEnabled: false,
+
 
         };
         this.handleText = this.handleText.bind(this);
         // this.onDrop = this.onDrop.bind(this);
-
+        this.addTest = this.addTest.bind(this);
+        this.disTest = this.disTest.bind(this);
     }
-
+    handleForm = (value) => {
+        console.log(value);
+        this.props.onSelectTest(value);
+    };
     onDrop(files) {
         this.props.onSelectFile({number:this.props.number, file:files});
 
@@ -54,6 +61,37 @@ class Theme extends Component{
             })
         }
     }
+    addTest(event){
+        if(event) event.preventDefault();
+
+
+        const u = this.state.tests;
+        // console.log(u.length);
+        let i = this.state.testCounter;
+        // let z = this.props.number;
+        u[i] = <div key={i}><CreateTest number = {this.props.number} numberTest = {i} onForm = {this.handleForm}/></div>;
+        i++;
+        this.setState({
+            tests: u, testCounter:i
+        })
+
+    };
+
+    disTest(event){
+        if(event) event.preventDefault();
+
+        const inputList = this.state.tests;
+        let i = this.state.testCounter;
+        if(i > 0){
+            i--;
+            inputList.pop();
+            this.setState({
+                tests: inputList, testCounter: i
+            });
+        }
+
+
+    };
     render(){
         const styleDropzone = {
             width : "100%",
@@ -81,6 +119,16 @@ class Theme extends Component{
                         <p style={styleDropzoneP}>Not working.</p>
                     </Dropzone>
                 </FormGroup>
+                <FormGroup>
+
+                    <Button color="success" onClick={this.addTest}>Add Test</Button>{' '}
+                    <Button color="danger" onClick={this.disTest}>Delete Test</Button>{' '}
+                </FormGroup>
+                <FormGroup>
+                    {this.state.tests.map(function (input, index) {
+                        return <div>{input}</div>
+                    })}
+                </FormGroup>
 
                 {/*<Button color="secondary" name = {"create"} onClick={this.handleTestButtons}>Create Test</Button>{' '}*/}
                 {/*<a>  Or  </a>*/}
@@ -96,9 +144,9 @@ class Course extends Component{
         this.state = {
             elementName: props.elementName,
             courseText:"",
-            themes: [<div key={0}><Theme onSelectLanguage={this.handleName} onSelectFile={this.handleFile} number = {0}/></div>],
+            themes: [<div key={0}><Theme onSelectTest = {this.handleTest} onSelectLanguage={this.handleName} onSelectFile={this.handleFile} number = {0}/></div>],
             counter: 1,
-            inData:[]
+            inData:[],
         };
 
 
@@ -130,6 +178,23 @@ class Course extends Component{
         // this.props.onSelectLanguage(lang);
     };
 
+    handleTest = (value) => {
+        console.log("olo", value);
+        let array = this.state.inData;
+        if(array[value.numberTheme][value.numberTheme])
+            array[value.numberTheme].tests.push({data: value.data, testNumber: value.numberTest});
+        let v = this.state.inData;
+        if(!v[value.numberTheme].tests[value.numberTest]){
+            v[value.numberTheme].tests[value.numberTest] = [];
+            v[value.numberTheme].tests[value.numberTest].push({data: value.data, testNumber: value.numberTest});
+        }else{
+            v[value.numberTheme].tests[value.numberTest].push({data: value.data, testNumber: value.numberTest});
+        }
+        this.setState({
+            inData:v
+        })
+    }
+
 
     handleName = (langValue) => {
         console.log(langValue);
@@ -146,7 +211,7 @@ class Course extends Component{
                 array[themeNumber].themeTitle = themeTitle;
             }
         }else{
-            array[themeNumber] = {themeText: "", themeTitle: "", file: ""};
+            array[themeNumber] = {themeText: "", themeTitle: "", file: "", tests:[]};
             let themeElementChoozer = langValue.charAt(1) + langValue.charAt(2);
             if(themeElementChoozer === "TT"){
                 let themeText = langValue.substr(3, langValue.length);
@@ -174,7 +239,7 @@ class Course extends Component{
         // console.log(u.length);
         let i = this.state.counter;
         // let z = this.props.number;
-        u[i] = <div key={i}><Theme onSelectLanguage={this.handleName} onSelectFile={this.handleFile} number = {i}/></div>;
+        u[i] = <div key={i}><Theme onSelectLanguage={this.handleName} onSelectTest = {this.handleTest} onSelectFile={this.handleFile} number = {i}/></div>;
         i++;
         this.setState({
             themes: u, counter:i
@@ -187,6 +252,7 @@ class Course extends Component{
         console.log(formElements);
         console.log(courseTitle);
 
+        // fetch('http://localhost:3000/tanya/admin/createCourse', {
         fetch('http://localhost:3000/tanya/admin/createCourse', {
             method: 'POST',
             headers: {
@@ -196,11 +262,14 @@ class Course extends Component{
             body: JSON.stringify({
                 data: formElements,
                 name: courseTitle,
+                creatorId: localStorage.getItem("id"),
                 secondParam: 'yourOtherValue',
             })
         }).then(function(response) {
             console.log(response)
         })
+        window.location.reload();
+
     };
 
     disButton(event){
